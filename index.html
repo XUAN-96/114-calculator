@@ -29,13 +29,19 @@ button{font-family:inherit;cursor:pointer;}
 .loc-btn.local-done { border-color: var(--success); background: var(--success-bg); }
 
 .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;} .proj-btn{padding:20px;border:2px solid #eee;border-radius:12px;cursor:pointer;background:#fcfcfc;text-align:center;} .proj-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);} .proj-icon{font-size:2.5rem;display:block;} .proj-warn-box{background:var(--warn-bg);border-left:4px solid var(--warn);padding:12px;color:#9a7d0a;margin-top:15px;display:none;}
-.tbl-wrap{overflow-x:auto;} table{width:100%;border-collapse:collapse;min-width:500px;} th{background:#f4f6f8;color:var(--primary);padding:12px;text-align:center;} td{padding:10px 12px;border-bottom:1px solid #f0f2f5;} .cat-row td{background:var(--primary-bg);font-weight:700;color:var(--primary);} .price-col,.total-col{text-align:right;font-weight:700;}
+.tbl-wrap{overflow-x:auto;} table{width:100%;border-collapse:collapse;min-width:500px;} th{background:#f4f6f8;color:var(--primary);padding:12px;text-align:center;} td{padding:10px 12px;border-bottom:1px solid #f0f2f5;} 
+
+/* 分類標題置中 */
+.cat-row td{background:var(--primary-bg);font-weight:700;color:var(--primary); text-align:center;} 
+
+.price-col,.total-col{text-align:right;font-weight:700;}
 .qty-ctrl{display:flex;justify-content:center;gap:5px;} .qty-btn{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:4px;} .qty-input{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;}
 
-/* ─── 新增：自訂項目專用樣式 ─── */
+/* 自訂項目樣式 */
 .custom-row { background: #fffcf5; }
 .custom-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 .custom-price-input { width: 80px; text-align: right; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+.add-custom-btn-row td { padding: 15px; text-align: center; border-bottom: none; }
 
 .budget-banner{background:#fff;border-top:1px solid #ddd;box-shadow:0 -4px 20px rgba(0,0,0,.15);position:fixed;bottom:0;left:0;width:100%;z-index:400;padding:15px 20px;display:none;justify-content:space-between;align-items:center;} .bb-bar-area{flex:1;margin:0 20px;} .bb-bar-bg{height:8px;background:#eee;border-radius:4px;} .bb-bar-fill{height:100%;background:var(--primary-light);}
 .nav-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;} .btn{flex:1;padding:14px;border:none;border-radius:8px;font-weight:700;color:#fff;min-width:140px;} .btn-primary{background:var(--primary);} .btn-outline{background:#fff;border:2px solid var(--primary);color:var(--primary);} .btn-danger{background:var(--danger);} .btn-warn{background:var(--warn);} .btn-drive{background:linear-gradient(135deg, #8e44ad, #9b59b6);} .btn-success{background:var(--success);}
@@ -125,15 +131,14 @@ button{font-family:inherit;cursor:pointer;}
     <div class="card-hd">
       <span>&#9997; 數量輸入</span>
       <div style="display:flex; align-items:center; gap:10px;">
-        <!-- 新增：增加自訂項目按鈕 -->
-        <button class="btn-sm btn-outline" style="font-weight:bold" onclick="addCustomRow()">+ 新增自訂項目</button>
         <small style="font-weight:normal" id="p2-loc-info"></small>
       </div>
     </div>
     <div class="card-bd">
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th style="width:40px">選</th><th>項目</th><th style="width:90px">單價</th><th style="width:110px">數量</th><th style="width:90px">小計</th></tr></thead>
+          <!-- 移除勾選欄位 -->
+          <thead><tr><th>項目</th><th style="width:90px">單價</th><th style="width:110px">數量</th><th style="width:90px">小計</th></tr></thead>
           <tbody id="inputBody"></tbody>
         </table>
       </div>
@@ -214,7 +219,6 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxT0dCpftXBe0
 /* CONFIG & DATA */
 const CONFIG={budget:{1:130000,2:200000},locs:[{id:1,t:"秀林鄉",v:"文蘭村",s:"文蘭村辦公室、銅門收容所",p:1},{id:2,t:"秀林鄉",v:"和平村",s:"和平村辦公室/活動中心",p:1},{id:3,t:"秀林鄉",v:"秀林村",s:"秀林村多功能集會所",p:1},{id:4,t:"秀林鄉",v:"佳民村",s:"佳民文化健康站",p:2},{id:5,t:"吉安鄉",v:"福興村",s:"福興社區活動中心",p:2},{id:6,t:"壽豐鄉",v:"水璉村",s:"水璉社區活動中心",p:2},{id:7,t:"萬榮鄉",v:"馬遠村",s:"馬遠村辦公處/馬遠社區活動中心",p:1},{id:8,t:"萬榮鄉",v:"見晴村",s:"見晴多功能活動中心",p:1},{id:9,t:"萬榮鄉",v:"萬榮村",s:"萬榮村辦公處、摩里沙卡文化健康站",p:2},{id:10,t:"光復鄉",v:"大興村",s:"大興村辦公處",p:1},{id:11,t:"光復鄉",v:"大同村",s:"大同活動中心",p:1},{id:12,t:"光復鄉",v:"東富村",s:"加里洞社區活動中心",p:1},{id:13,t:"光復鄉",v:"大華村",s:"大華村活動中心",p:1},{id:14,t:"光復鄉",v:"大安村",s:"大安社區活動中心",p:1},{id:15,t:"光復鄉",v:"北富村",s:"太巴塱部落之心",p:1},{id:16,t:"光復鄉",v:"大馬村",s:"香草場社區活動中心",p:1},{id:17,t:"光復鄉",v:"大平村",s:"三玄宮、保安寺",p:1},{id:18,t:"光復鄉",v:"大全村",s:"大全村活動中心/拉索埃聚會所",p:2},{id:19,t:"瑞穗鄉",v:"奇美村",s:"奇美村辦公室/活動中心",p:1},{id:20,t:"瑞穗鄉",v:"舞鶴村",s:"掃叭頂社區活動中心",p:2},{id:21,t:"玉里鎮",v:"春日里",s:"春日文化健康站",p:2},{id:22,t:"卓溪鄉",v:"崙山村",s:"崙山社區活動中心",p:1},{id:23,t:"卓溪鄉",v:"古風村",s:"崙天社區活動中心",p:1}],items:{1:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈(含燈頭延伸架)",p:22500},{c:"路燈",n:"300W 太陽能路燈(含燈頭延伸架)",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}],2:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈",p:22500},{c:"路燈",n:"300W 太陽能路燈",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"室內照明",n:"2*2 (60x60) 35W 平板燈",p:2500},{c:"室內照明",n:"2*4 (60x120) 35W 平板燈",p:4000},{c:"室內照明",n:"T8 LED 12W 2尺+雙管山型座",p:2200},{c:"室內照明",n:"T8 LED 20W 4尺+雙管山型座",p:3200},{c:"省水設備",n:"壓按式水龍頭 - 立栓",p:2500},{c:"省水設備",n:"壓按式水龍頭 - 壁栓",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓柄)",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓扭)",p:2500},{c:"省水設備",n:"省水馬桶套件-高水箱(拉繩)",p:3000},{c:"環境",n:"資源回收桶 120L",p:3000},{c:"環境",n:"資源回收桶 240L",p:3500},{c:"家電",n:"300L 雙門冰箱 一級節能",p:25000},{c:"家電",n:"400L 雙門冰箱 一級節能",p:30000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}]}};
 
-// ADDED: custom array to store user-added items
 let state={loc:null,proj:null,qty:{},chk:{},custom:[],saved:{},cloudFiles:[]};
 
 window.onload=()=>{
@@ -304,7 +308,7 @@ function selectLoc(l){
     let s=state.saved[l.id];
     state.proj=s.proj;
     state.qty=JSON.parse(JSON.stringify(s.qty));
-    state.chk=JSON.parse(JSON.stringify(s.chk));
+    state.chk=JSON.parse(JSON.stringify(s.chk)); // Keep for legacy state
     state.custom=s.custom ? JSON.parse(JSON.stringify(s.custom)) : [];
     toast(`已載入本機資料：${l.v}`);
   }else{
@@ -337,27 +341,33 @@ function renderInputTable(){
   document.getElementById('p2-loc-info').textContent=`${state.loc.t} ${state.loc.v}`;
   let list=CONFIG.items[state.proj],lastCat='';
   
-  // Render default items
+  // ─── 渲染內建項目 (不含勾選欄位) ───
   list.forEach((it,i)=>{
-    if(it.c!==lastCat){let r=tb.insertRow();r.className='cat-row';r.innerHTML=`<td colspan="5">${it.c}</td>`;lastCat=it.c;}
-    let r=tb.insertRow(),chk=!!state.chk[i],q=state.qty[i]||0;
-    r.innerHTML=`<td style="text-align:center"><input type="checkbox" id="ck_${i}" ${chk?'checked':''} onchange="toggleItem(${i})"></td>
+    if(it.c!==lastCat){let r=tb.insertRow();r.className='cat-row';r.innerHTML=`<td colspan="4">${it.c}</td>`;lastCat=it.c;}
+    let r=tb.insertRow(),q=state.qty[i]||0;
+    
+    // 自動將舊的 chk 狀態設為 true 如果數量 > 0 (兼容舊資料)
+    state.chk[i] = q > 0;
+
+    r.innerHTML=`
     <td>${it.n}</td><td class="price-col">${fmtMoney(it.p)}</td>
-    <td><div class="qty-ctrl"><button class="qty-btn" onclick="stepQty(${i},-1)" ${!chk?'disabled':''}>-</button>
-    <input type="number" class="qty-input" id="qinp_${i}" value="${q}" onchange="inputQty(${i},this.value)" ${!chk?'disabled':''}>
-    <button class="qty-btn" onclick="stepQty(${i},1)" ${!chk?'disabled':''}>+</button></div></td>
+    <td><div class="qty-ctrl"><button class="qty-btn" onclick="stepQty(${i},-1)">-</button>
+    <input type="number" class="qty-input" id="qinp_${i}" value="${q}" onchange="inputQty(${i},this.value)">
+    <button class="qty-btn" onclick="stepQty(${i},1)">+</button></div></td>
     <td class="total-col" id="sub_${i}">${fmtMoney(q*it.p)}</td>`;
   });
 
   // ─── 渲染自訂項目 ───
   if(state.custom.length > 0){
-    let cr=tb.insertRow();cr.className='cat-row';cr.innerHTML=`<td colspan="5">自訂項目</td>`;
+    let cr=tb.insertRow();cr.className='cat-row';cr.innerHTML=`<td colspan="4">自訂項目</td>`;
     state.custom.forEach((cItem, i) => {
       let r = tb.insertRow();
       r.className = 'custom-row';
       r.innerHTML = `
-        <td style="text-align:center"><button class="btn-sm btn-danger" onclick="removeCustomRow(${i})" title="刪除">✖</button></td>
-        <td><input type="text" class="custom-input" placeholder="輸入項目名稱" value="${cItem.n}" onchange="updateCustomName(${i}, this.value)"></td>
+        <td style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-sm btn-danger" style="margin:0;" onclick="removeCustomRow(${i})" title="刪除">✖</button>
+          <input type="text" class="custom-input" placeholder="輸入項目名稱" value="${cItem.n}" onchange="updateCustomName(${i}, this.value)">
+        </td>
         <td class="price-col"><input type="number" class="custom-price-input" placeholder="單價" value="${cItem.p}" onchange="updateCustomPrice(${i}, this.value)"></td>
         <td>
           <div class="qty-ctrl">
@@ -370,19 +380,30 @@ function renderInputTable(){
       `;
     });
   }
+  
+  // ─── 新增自訂項目按鈕 (放置於最底下一列) ───
+  let addRow = tb.insertRow();
+  addRow.className = 'add-custom-btn-row';
+  addRow.innerHTML = `<td colspan="4"><button class="btn-sm btn-outline" style="font-weight:bold; padding: 8px 16px; font-size: 0.9rem;" onclick="addCustomRow()">+ 新增自訂項目</button></td>`;
 
   updateBudget();
 }
 
-function toggleItem(i){
-  let c=document.getElementById(`ck_${i}`).checked;state.chk[i]=c;
-  let inp=document.getElementById(`qinp_${i}`),btns=inp.parentElement.querySelectorAll('button');
-  inp.disabled=!c;btns.forEach(b=>b.disabled=!c);
-  if(c&&(state.qty[i]||0)===0){state.qty[i]=1;inp.value=1;}else if(!c){state.qty[i]=0;inp.value=0;}
-  updateSub(i);
+function stepQty(i,d){
+    let v=Math.max(0,(state.qty[i]||0)+d);
+    state.qty[i]=v;
+    state.chk[i] = v > 0; // 同步狀態
+    document.getElementById(`qinp_${i}`).value=v;
+    updateSub(i);
 }
-function stepQty(i,d){let v=Math.max(0,(state.qty[i]||0)+d);state.qty[i]=v;document.getElementById(`qinp_${i}`).value=v;updateSub(i);}
-function inputQty(i,v){let n=parseInt(v);if(isNaN(n)||n<0)n=0;state.qty[i]=n;document.getElementById(`qinp_${i}`).value=n;updateSub(i);}
+function inputQty(i,v){
+    let n=parseInt(v);
+    if(isNaN(n)||n<0)n=0;
+    state.qty[i]=n;
+    state.chk[i] = n > 0; // 同步狀態
+    document.getElementById(`qinp_${i}`).value=n;
+    updateSub(i);
+}
 function updateSub(i){document.getElementById(`sub_${i}`).textContent=fmtMoney((state.qty[i]||0)*CONFIG.items[state.proj][i].p);updateBudget();}
 
 // ─── 自訂項目功能函數 ───
@@ -421,7 +442,7 @@ function inputCustomQty(i, val) {
 
 // ─── 重新計算總計與預算 ───
 function calcTotal(){
-  let regularTotal = CONFIG.items[state.proj].reduce((a,b,i)=>a+(state.chk[i]?(state.qty[i]||0)*b.p:0),0);
+  let regularTotal = CONFIG.items[state.proj].reduce((a,b,i)=>a+((state.qty[i]||0)*b.p),0);
   let customTotal = state.custom.reduce((a,c) => a + (c.q * c.p), 0);
   return regularTotal + customTotal;
 }
@@ -445,7 +466,7 @@ function renderResult(){
   
   let hasItem = false;
   CONFIG.items[state.proj].forEach((it,i)=>{
-    if(state.chk[i]&&state.qty[i]>0) {
+    if(state.qty[i]>0) {
       tb.innerHTML+=`<tr><td>${it.n}</td><td class="price-col">${fmtMoney(it.p)}</td><td style="text-align:center">${state.qty[i]}</td><td class="total-col">${fmtMoney(state.qty[i]*it.p)}</td></tr>`;
       hasItem = true;
     }
@@ -497,7 +518,7 @@ function buildCSVContent(loc, proj, chk, qty, custom){
   let projName = (proj === 1) ? '防災避難所' : '低碳永續家園';
 
   CONFIG.items[proj].forEach((it, i) => {
-    if(chk[i] && (qty[i] || 0) > 0){
+    if((qty[i] || 0) > 0){
       let q = qty[i] || 0;
       let subtotal = q * it.p;
       grandTotal += subtotal;
@@ -601,7 +622,7 @@ function showSavedModal(){
   } else {
     ids.forEach(id=>{
       let l=CONFIG.locs.find(x=>x.id==id),s=state.saved[id],t=0;
-      CONFIG.items[s.proj].forEach((it,i)=>{if(s.chk[i])t+=(s.qty[i]||0)*it.p;});
+      CONFIG.items[s.proj].forEach((it,i)=>{if(s.qty[i]>0)t+=(s.qty[i]||0)*it.p;});
       if(s.custom) s.custom.forEach(c => { t += (c.q * c.p); });
       tb.innerHTML+=`<tr>
         <td>${l.t} ${l.v}</td>
@@ -634,7 +655,7 @@ function viewSavedDetail(id){
 
   let hasItem = false;
   items.forEach((it, i) => {
-    if(s.chk[i] && s.qty[i] > 0){
+    if(s.qty[i] > 0){
       hasItem = true;
       let sub = s.qty[i] * it.p;
       grandTotal += sub;
