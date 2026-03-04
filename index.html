@@ -81,6 +81,7 @@ button{font-family:inherit;cursor:pointer;}
     <div class="prog-top"><span>&#128193; 本機暫存 (點擊管理)</span><span id="progText">0 / 23</span></div>
     <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
+
   <div class="card">
     <div class="card-hd">&#128205; 選擇村里地點</div>
     <div class="card-bd">
@@ -88,6 +89,7 @@ button{font-family:inherit;cursor:pointer;}
       <div class="loc-grid" id="locContainer"></div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-hd">&#128736; 選擇工項</div>
     <div class="card-bd">
@@ -96,8 +98,17 @@ button{font-family:inherit;cursor:pointer;}
         <div class="proj-btn" id="pbtn2" onclick="selectProject(2)"><span class="proj-icon">&#9850;</span><span style="font-weight:bold">02 低碳永續家園</span><br><small>預算上限 $200,000</small></div>
       </div>
       <div class="proj-warn-box" id="projWarn"></div>
+
+      <!-- 新增：全部上傳按鈕 (第一頁) -->
+      <div style="margin-top:15px;">
+        <button class="btn btn-drive" style="width:100%" onclick="uploadAllToDrive()">☁ 將所有資料上傳到雲端</button>
+        <div style="margin-top:8px;font-size:0.8rem;color:#888;line-height:1.4;">
+          會將「本機暫存」內所有已儲存的村里報價單，逐筆上傳到雲端資料夾。(同名檔案會被覆蓋)
+        </div>
+      </div>
     </div>
   </div>
+
   <div class="nav-row">
     <button class="btn btn-primary" id="nextBtn1" onclick="goPage(1)" disabled>下一步 &#8594;</button>
   </div>
@@ -160,7 +171,7 @@ button{font-family:inherit;cursor:pointer;}
       <button class="btn btn-outline" onclick="goPage(1)">&#8592; 修改</button>
       <button class="btn btn-warn" onclick="window.print()">&#128438; 列印/PDF</button>
       <button class="btn btn-primary" onclick="exportCSV()">&#128202; 下載 CSV</button>
-      <button class="btn btn-drive" onclick="uploadToDrive()">&#9729; 上傳至雲端硬碟</button>
+      <!-- 單筆上傳按鈕已刪除，移至第一頁 -->
       <button class="btn btn-success" style="flex-basis:100%" onclick="markDone()">&#10003; 儲存並完成</button>
     </div>
     <div style="margin-top:20px;text-align:center;"><button style="background:none;border:none;color:#aaa;text-decoration:underline" onclick="resetAll()">重置本機資料</button></div>
@@ -186,8 +197,8 @@ button{font-family:inherit;cursor:pointer;}
 <div class="toast" id="toast"></div>
 
 <script>
-// ★★★ 請填入您最新的 Google Apps Script 網址 ★★★
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxT0dCpftXBe0wPbFnlElgDmnEmF3_MWtgRvuZd8jZZYjeopmkkaC97tI9G.../exec";
+// ★★★ 請替換成你最新部署的「網頁應用程式」網址 ★★★
+const GOOGLE_SCRIPT_URL = "PASTE_YOUR_NEW_WEB_APP_EXEC_URL_HERE";
 
 /* CONFIG & DATA */
 const CONFIG={budget:{1:130000,2:200000},locs:[{id:1,t:"秀林鄉",v:"文蘭村",s:"文蘭村辦公室、銅門收容所",p:1},{id:2,t:"秀林鄉",v:"和平村",s:"和平村辦公室/活動中心",p:1},{id:3,t:"秀林鄉",v:"秀林村",s:"秀林村多功能集會所",p:1},{id:4,t:"秀林鄉",v:"佳民村",s:"佳民文化健康站",p:2},{id:5,t:"吉安鄉",v:"福興村",s:"福興社區活動中心",p:2},{id:6,t:"壽豐鄉",v:"水璉村",s:"水璉社區活動中心",p:2},{id:7,t:"萬榮鄉",v:"馬遠村",s:"馬遠村辦公處/馬遠社區活動中心",p:1},{id:8,t:"萬榮鄉",v:"見晴村",s:"見晴多功能活動中心",p:1},{id:9,t:"萬榮鄉",v:"萬榮村",s:"萬榮村辦公處、摩里沙卡文化健康站",p:2},{id:10,t:"光復鄉",v:"大興村",s:"大興村辦公處",p:1},{id:11,t:"光復鄉",v:"大同村",s:"大同活動中心",p:1},{id:12,t:"光復鄉",v:"東富村",s:"加里洞社區活動中心",p:1},{id:13,t:"光復鄉",v:"大華村",s:"大華村活動中心",p:1},{id:14,t:"光復鄉",v:"大安村",s:"大安社區活動中心",p:1},{id:15,t:"光復鄉",v:"北富村",s:"太巴塱部落之心",p:1},{id:16,t:"光復鄉",v:"大馬村",s:"香草場社區活動中心",p:1},{id:17,t:"光復鄉",v:"大平村",s:"三玄宮、保安寺",p:1},{id:18,t:"光復鄉",v:"大全村",s:"大全村活動中心/拉索埃聚會所",p:2},{id:19,t:"瑞穗鄉",v:"奇美村",s:"奇美村辦公室/活動中心",p:1},{id:20,t:"瑞穗鄉",v:"舞鶴村",s:"掃叭頂社區活動中心",p:2},{id:21,t:"玉里鎮",v:"春日里",s:"春日文化健康站",p:2},{id:22,t:"卓溪鄉",v:"崙山村",s:"崙山社區活動中心",p:1},{id:23,t:"卓溪鄉",v:"古風村",s:"崙天社區活動中心",p:1}],items:{1:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈(含燈頭延伸架)",p:22500},{c:"路燈",n:"300W 太陽能路燈(含燈頭延伸架)",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}],2:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈",p:22500},{c:"路燈",n:"300W 太陽能路燈",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"室內照明",n:"2*2 (60x60) 35W 平板燈",p:2500},{c:"室內照明",n:"2*4 (60x120) 35W 平板燈",p:4000},{c:"室內照明",n:"T8 LED 12W 2尺+雙管山型座",p:2200},{c:"室內照明",n:"T8 LED 20W 4尺+雙管山型座",p:3200},{c:"省水設備",n:"壓按式水龍頭 - 立栓",p:2500},{c:"省水設備",n:"壓按式水龍頭 - 壁栓",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓柄)",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓扭)",p:2500},{c:"省水設備",n:"省水馬桶套件-高水箱(拉繩)",p:3000},{c:"環境",n:"資源回收桶 120L",p:3000},{c:"環境",n:"資源回收桶 240L",p:3500},{c:"家電",n:"300L 雙門冰箱 一級節能",p:25000},{c:"家電",n:"400L 雙門冰箱 一級節能",p:30000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}]}};
@@ -203,15 +214,25 @@ window.onload=()=>{
 function fmtMoney(n){return '$'+Number(n).toLocaleString();}
 function toast(m){let t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},3000);}
 
-// ─── 雲端同步功能 ───
+// ─── 雲端同步功能（加強版錯誤判斷，避免因登入頁面導致 JSON 解析失敗而未提示） ───
 function syncCloud(){
   let st = document.getElementById('cloudStatusText');
   st.textContent = "☁ 正在讀取雲端資料...";
   st.style.color = "#888";
 
-  fetch(GOOGLE_SCRIPT_URL)
-    .then(res => res.json())
-    .then(files => {
+  fetch(GOOGLE_SCRIPT_URL, { method:'GET', redirect:'follow', cache:'no-store' })
+    .then(res => res.text())
+    .then(txt => {
+      // 判斷回傳內容是否為 HTML（通常是 Google 登入或權限錯誤頁面）
+      if((txt || '').trim().startsWith('<')){
+        st.textContent = "⚠ 同步失敗：請檢查 GAS 部署是否設為「所有人可存取」";
+        st.style.color = "red";
+        return;
+      }
+      let files = [];
+      try { files = JSON.parse(txt || '[]'); } catch(e){ files = []; }
+      if(!Array.isArray(files)) files = [];
+      
       state.cloudFiles = files;
       updateCloudStatusUI();
       st.textContent = "✔ 雲端已同步";
@@ -219,7 +240,7 @@ function syncCloud(){
     })
     .catch(err => {
       console.error(err);
-      st.textContent = "⚠ 雲端同步失敗";
+      st.textContent = "⚠ 雲端同步失敗 (CORS或網路錯誤)";
       st.style.color = "red";
     });
 }
@@ -229,25 +250,24 @@ function updateCloudStatusUI(){
     let btn = document.getElementById(`loc_${loc.id}`);
     if(!btn) return;
     let searchName = `${loc.t}_${loc.v}`;
-    let isUploaded = state.cloudFiles.some(f => f.includes(searchName));
-    if(isUploaded){
-      btn.classList.add('cloud-done');
-    } else {
-      btn.classList.remove('cloud-done');
-    }
+    let isUploaded = (state.cloudFiles || []).some(f => String(f).includes(searchName));
+    if(isUploaded){ btn.classList.add('cloud-done'); }
+    else { btn.classList.remove('cloud-done'); }
   });
 }
 
 // ─── 標準功能 ───
-
 function goPage(n){
   if(n>0&&(!state.loc||!state.proj)){toast('請先選擇地點');return;}
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('hidden',i!==n));
   document.querySelectorAll('.stab').forEach((s,i)=>s.className=`stab ${i===n?'active':(i<n?'done':'')}`);
   document.getElementById('hdBadge').textContent=`STEP ${n+1} / 3`;
   document.getElementById('budgetBanner').style.display=(n===1)?'flex':'none';
-  if(n===1)updateBudget();if(n===2)renderResult();window.scrollTo(0,0);
+  if(n===1)updateBudget();
+  if(n===2)renderResult();
+  window.scrollTo(0,0);
 }
+
 function renderLocs(){
   let c=document.getElementById('locContainer');c.innerHTML='';let lastTown='';
   CONFIG.locs.forEach(l=>{
@@ -257,33 +277,47 @@ function renderLocs(){
     b.innerHTML=`<div class="loc-village">${l.v}</div><div class="loc-site">${l.s}</div><span class="loc-ptag ${l.p===1?'ptag-p1':'ptag-p2'}">${l.p===1?'防災':'低碳'}</span>`;
     c.appendChild(b);
   });
+  updateCloudStatusUI();
 }
+
 function filterLocs(){
   let k=document.getElementById('locSearch').value.toLowerCase();
   document.querySelectorAll('.loc-btn').forEach(b=>{b.style.display=b.textContent.toLowerCase().includes(k)?'flex':'none';});
 }
+
 function selectLoc(l){
-  state.loc=l;document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('active'));document.getElementById(`loc_${l.id}`).classList.add('active');
+  state.loc=l;
+  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`loc_${l.id}`).classList.add('active');
+
   if(state.saved[l.id]){
-    let s=state.saved[l.id];state.proj=s.proj;state.qty=JSON.parse(JSON.stringify(s.qty));state.chk=JSON.parse(JSON.stringify(s.chk));
-    toast(`已載入本機資料:${l.v}`);
+    let s=state.saved[l.id];
+    state.proj=s.proj;
+    state.qty=JSON.parse(JSON.stringify(s.qty));
+    state.chk=JSON.parse(JSON.stringify(s.chk));
+    toast(`已載入本機資料：${l.v}`);
   }else{
-    state.proj=l.p;state.qty={};state.chk={};
+    state.proj=l.p;
+    state.qty={};
+    state.chk={};
   }
   updateProjUI();
 }
+
 function selectProject(p){
   if(!state.loc)return;
   if(state.loc.p!==p && !confirm('建議工項不同，確定切換？'))return;
   state.proj=p;state.qty={};state.chk={};updateProjUI();
 }
+
 function updateProjUI(){
   document.getElementById('pbtn1').className=`proj-btn ${state.proj===1?'active':''}`;
   document.getElementById('pbtn2').className=`proj-btn ${state.proj===2?'active':''}`;
   let wb=document.getElementById('projWarn');
   wb.style.display=(state.loc.p!==state.proj)?'block':'none';
   if(state.loc.p!==state.proj) wb.innerHTML='⚠️ 注意：您選擇了非建議工項。';
-  document.getElementById('nextBtn1').disabled=false;renderInputTable();
+  document.getElementById('nextBtn1').disabled=false;
+  renderInputTable();
 }
 
 function renderInputTable(){
@@ -302,6 +336,7 @@ function renderInputTable(){
   });
   updateBudget();
 }
+
 function toggleItem(i){
   let c=document.getElementById(`ck_${i}`).checked;state.chk[i]=c;
   let inp=document.getElementById(`qinp_${i}`),btns=inp.parentElement.querySelectorAll('button');
@@ -313,6 +348,7 @@ function stepQty(i,d){let v=Math.max(0,(state.qty[i]||0)+d);state.qty[i]=v;docum
 function inputQty(i,v){let n=parseInt(v);if(isNaN(n)||n<0)n=0;state.qty[i]=n;document.getElementById(`qinp_${i}`).value=n;updateSub(i);}
 function updateSub(i){document.getElementById(`sub_${i}`).textContent=fmtMoney((state.qty[i]||0)*CONFIG.items[state.proj][i].p);updateBudget();}
 function calcTotal(){return CONFIG.items[state.proj].reduce((a,b,i)=>a+(state.chk[i]?(state.qty[i]||0)*b.p:0),0);}
+
 function updateBudget(){
   let t=calcTotal(),lim=CONFIG.budget[state.proj],diff=lim-t,pct=Math.round(t/lim*100);
   document.getElementById('bbDiff').textContent=fmtMoney(Math.abs(diff));
@@ -322,6 +358,7 @@ function updateBudget(){
   bar.style.background=diff>=0?'var(--primary-light)':'var(--danger)';
   document.getElementById('bbPct').style.color=diff>=0?'var(--primary)':'var(--danger)';
 }
+
 function renderResult(){
   let t=calcTotal(),lim=CONFIG.budget[state.proj],d=new Date();
   document.getElementById('rLoc').textContent=`${state.loc.t} ${state.loc.v}`;
@@ -335,12 +372,11 @@ function renderResult(){
   
   document.getElementById('rTotal').textContent=fmtMoney(t);
   document.getElementById('rLimitInfo').textContent=`上限 ${fmtMoney(lim)}`;
-  
+
   let diff = lim - t;
   let diffEl = document.getElementById('rDiffVal');
   let labelEl = document.getElementById('rDiffLabel');
   let rowEl = document.getElementById('rDiffRow');
-  
   if(diff >= 0){
     labelEl.textContent = '預算剩餘';
     diffEl.textContent = fmtMoney(diff);
@@ -351,87 +387,107 @@ function renderResult(){
     rowEl.style.color = '#ec7063';
   }
 }
+
 function markDone(){
   if(!state.loc)return;
-  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk};saveToLocal();
-  document.getElementById(`loc_${state.loc.id}`).classList.add('local-done');updateProgress();toast('已儲存至本機！');
+  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk};
+  saveToLocal();
+  document.getElementById(`loc_${state.loc.id}`).classList.add('local-done');
+  updateProgress();
+  toast('已儲存至本機！');
 }
 
-// === 修正後的 CSV 生成函數（新增序號、鄉鎮、村里、現勘場域、盤點項目欄位）===
-function getCSVContent(){
+// === 建立 CSV 內容 (資料往下排列) ===
+function buildCSVContent(loc, proj, chk, qty){
   let rows = [
-    ['序號', '鄉鎮', '村里', '現勘場域', '盤點項目', '項目', '數量', '價錢', '總價']
+    ['序號','鄉鎮','村里','現勘場域','盤點項目','項目','數量','價錢','總價']
   ];
-  
   let rowNumber = 1;
   let grandTotal = 0;
-  
-  CONFIG.items[state.proj].forEach((it, i) => {
-    if(state.chk[i] && state.qty[i] > 0) {
-      let subtotal = state.qty[i] * it.p;
+  let projName = (proj === 1) ? '防災避難所' : '低碳永續家園';
+
+  CONFIG.items[proj].forEach((it, i) => {
+    if(chk[i] && (qty[i] || 0) > 0){
+      let q = qty[i] || 0;
+      let subtotal = q * it.p;
       grandTotal += subtotal;
-      
-      rows.push([
-        rowNumber,                    // 序號
-        state.loc.t,                  // 鄉鎮
-        state.loc.v,                  // 村里
-        state.loc.s,                  // 現勘場域
-        state.proj === 1 ? '防災避難所' : '低碳永續家園',  // 盤點項目
-        it.n,                         // 項目
-        state.qty[i],                 // 數量
-        it.p,                         // 價錢
-        subtotal                      // 總價
-      ]);
+      rows.push([rowNumber, loc.t, loc.v, loc.s, projName, it.n, q, it.p, subtotal]);
       rowNumber++;
     }
   });
-  
-  // 加入合計列
+
   rows.push([]);
-  rows.push(['', '', '', '', '', '合計', '', '', grandTotal]);
-  
-  return "\uFEFF" + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  rows.push(['','','','','','合計','','',grandTotal]);
+
+  return "\uFEFF" + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
 }
-// =============================================================
+
+function getCSVContent(){
+  return buildCSVContent(state.loc, state.proj, state.chk, state.qty);
+}
 
 function exportCSV(){
   let csv=getCSVContent();
   let b=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  let a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${state.loc.t}_${state.loc.v}_報價單.csv`;a.click();
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(b);
+  a.download=`${state.loc.t}_${state.loc.v}_報價單.csv`;
+  a.click();
 }
 
-function uploadToDrive() {
-  document.getElementById('loadingOverlay').style.display = 'flex';
-  document.getElementById('loadingText').textContent = '正在上傳至雲端...';
-  
-  let csvContent = getCSVContent();
-  let filename = `${state.loc.t}_${state.loc.v}_報價單.csv`;
-  
-  fetch(GOOGLE_SCRIPT_URL, {
+// ─── 批次上傳至雲端功能 ───
+function postToDrive(filename, csvContent){
+  return fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ filename: filename, content: csvContent })
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('loadingOverlay').style.display = 'none';
-    if(data.status === "success") {
-      toast('✅ 上傳至雲端成功！');
-      setTimeout(syncCloud, 1000);
-    } else {
-      alert("上傳失敗：" + data.msg);
-    }
-  })
-  .catch(err => {
-    document.getElementById('loadingOverlay').style.display = 'none';
-    alert("網路傳輸或伺服器錯誤：" + err);
+  }).then(res => res.text()).then(txt => {
+    if(!txt) return {status:'success'};
+    try { return JSON.parse(txt); } catch(e){ return {status:'success'}; }
   });
 }
 
+async function uploadAllToDrive(){
+  let ids = Object.keys(state.saved || {});
+  if(ids.length === 0){
+    alert('目前沒有任何「本機暫存」資料可上傳。\n請先將各村里報價單按「儲存並完成」後再上傳。');
+    return;
+  }
+  if(!confirm(`將上傳 ${ids.length} 筆村里資料到雲端（同名檔案會覆蓋）。\n確定要繼續嗎？`)) return;
+
+  document.getElementById('loadingOverlay').style.display = 'flex';
+
+  let ok = 0, fail = 0;
+  for(let idx=0; idx<ids.length; idx++){
+    let id = ids[idx];
+    let loc = CONFIG.locs.find(x => String(x.id) === String(id));
+    let s = state.saved[id];
+    if(!loc || !s){ fail++; continue; }
+
+    document.getElementById('loadingText').textContent = `正在上傳 (${idx+1}/${ids.length})：${loc.t} ${loc.v}`;
+
+    let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {});
+    let filename = `${loc.t}_${loc.v}_報價單.csv`;
+
+    try {
+      let resp = await postToDrive(filename, csv);
+      if(resp && resp.status === 'error') fail++; else ok++;
+    } catch(e){
+      console.error(e);
+      fail++;
+    }
+  }
+
+  document.getElementById('loadingOverlay').style.display = 'none';
+  toast(`✅ 上傳完成：成功 ${ok} 筆、失敗 ${fail} 筆`);
+  setTimeout(syncCloud, 1000); // 重新更新畫面狀態
+}
+
+// ─── 本機資料管理 ───
 function saveToLocal(){localStorage.setItem('calc_v2',JSON.stringify(state.saved));}
 function loadFromLocal(){let d=localStorage.getItem('calc_v2');if(d)state.saved=JSON.parse(d);}
 function updateProgress(){let d=Object.keys(state.saved).length,t=CONFIG.locs.length;document.getElementById('progText').textContent=`${d} / ${t}`;document.getElementById('progFill').style.width=(d/t*100)+'%';}
-function resetAll(){if(confirm('確定重置所有本機暫存？(雲端檔案不會被刪除)')){localStorage.removeItem('calc_v2');location.reload();}}
+function resetAll(){if(confirm('確定重置所有本機暫存？(這不會刪除雲端檔案)')){localStorage.removeItem('calc_v2');location.reload();}}
 
 function showSavedModal(){
   document.getElementById('savedListView').style.display = 'block';
@@ -440,7 +496,7 @@ function showSavedModal(){
 
   let tb=document.getElementById('modalListBody');tb.innerHTML='';
   let ids = Object.keys(state.saved);
-  
+
   if(ids.length === 0){
     tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#aaa">尚無本機資料</td></tr>';
   } else {
@@ -475,7 +531,7 @@ function viewSavedDetail(id){
 
   let tbody = document.getElementById('detailTableBody');
   tbody.innerHTML = '';
-  
+
   let hasItem = false;
   items.forEach((it, i) => {
     if(s.chk[i] && s.qty[i] > 0){
@@ -490,7 +546,7 @@ function viewSavedDetail(id){
       </tr>`;
     }
   });
-  
+
   if(!hasItem) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa">無項目</td></tr>';
   document.getElementById('detailTotal').textContent = `總計：${fmtMoney(grandTotal)}`;
 }
