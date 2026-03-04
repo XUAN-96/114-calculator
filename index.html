@@ -16,7 +16,7 @@ button{font-family:inherit;cursor:pointer;}
 .stab{flex:1;padding:12px;text-align:center;font-size:.85rem;font-weight:600;color:#95a5a6;cursor:pointer;border-bottom:3px solid transparent;display:flex;align-items:center;justify-content:center;gap:8px;}
 .stab.active{color:var(--primary);border-bottom-color:var(--primary);background:#f8fbff;}
 .page{padding:20px 15px 120px;max-width:1000px;margin:0 auto;animation:fadeIn .4s ease;} @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.card{background:#fff;border-radius:12px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;} .card-hd{background:#f8f9fa;color:var(--primary);padding:14px 20px;font-weight:700;border-bottom:1px solid #eee;} .card-bd{padding:20px;}
+.card{background:#fff;border-radius:12px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;} .card-hd{background:#f8f9fa;color:var(--primary);padding:14px 20px;font-weight:700;border-bottom:1px solid #eee; display: flex; justify-content: space-between; align-items: center;} .card-bd{padding:20px;}
 .prog-box{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:16px 20px;margin-bottom:20px;cursor:pointer;border-left:5px solid var(--success);} .prog-top{display:flex;justify-content:space-between;font-weight:700;color:var(--primary);margin-bottom:10px;} .prog-bg{background:#eee;border-radius:10px;height:10px;overflow:hidden;} .prog-fill{background:linear-gradient(90deg,var(--success),#58d68d);height:100%;border-radius:10px;transition:width .6s ease-out;}
 .search-wrap{position:relative;margin-bottom:15px;} .search-inp{width:100%;padding:12px 15px 12px 40px;border:2px solid #eef2f5;border-radius:10px;} .search-icon{position:absolute;left:12px;top:12px;color:#aaa;}
 .town-label{grid-column:1/-1;font-weight:700;color:var(--primary);margin-top:10px;border-bottom:2px solid #eef2f5;} .loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
@@ -31,6 +31,12 @@ button{font-family:inherit;cursor:pointer;}
 .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;} .proj-btn{padding:20px;border:2px solid #eee;border-radius:12px;cursor:pointer;background:#fcfcfc;text-align:center;} .proj-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);} .proj-icon{font-size:2.5rem;display:block;} .proj-warn-box{background:var(--warn-bg);border-left:4px solid var(--warn);padding:12px;color:#9a7d0a;margin-top:15px;display:none;}
 .tbl-wrap{overflow-x:auto;} table{width:100%;border-collapse:collapse;min-width:500px;} th{background:#f4f6f8;color:var(--primary);padding:12px;text-align:center;} td{padding:10px 12px;border-bottom:1px solid #f0f2f5;} .cat-row td{background:var(--primary-bg);font-weight:700;color:var(--primary);} .price-col,.total-col{text-align:right;font-weight:700;}
 .qty-ctrl{display:flex;justify-content:center;gap:5px;} .qty-btn{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:4px;} .qty-input{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;}
+
+/* ─── 新增：自訂項目專用樣式 ─── */
+.custom-row { background: #fffcf5; }
+.custom-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+.custom-price-input { width: 80px; text-align: right; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+
 .budget-banner{background:#fff;border-top:1px solid #ddd;box-shadow:0 -4px 20px rgba(0,0,0,.15);position:fixed;bottom:0;left:0;width:100%;z-index:400;padding:15px 20px;display:none;justify-content:space-between;align-items:center;} .bb-bar-area{flex:1;margin:0 20px;} .bb-bar-bg{height:8px;background:#eee;border-radius:4px;} .bb-bar-fill{height:100%;background:var(--primary-light);}
 .nav-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;} .btn{flex:1;padding:14px;border:none;border-radius:8px;font-weight:700;color:#fff;min-width:140px;} .btn-primary{background:var(--primary);} .btn-outline{background:#fff;border:2px solid var(--primary);color:var(--primary);} .btn-danger{background:var(--danger);} .btn-warn{background:var(--warn);} .btn-drive{background:linear-gradient(135deg, #8e44ad, #9b59b6);} .btn-success{background:var(--success);}
 .btn-sm { padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; border: 1px solid; min-width: auto; margin-right: 3px;}
@@ -99,7 +105,6 @@ button{font-family:inherit;cursor:pointer;}
       </div>
       <div class="proj-warn-box" id="projWarn"></div>
 
-      <!-- 新增：全部上傳按鈕 (第一頁) -->
       <div style="margin-top:15px;">
         <button class="btn btn-drive" style="width:100%" onclick="uploadAllToDrive()">☁ 將所有資料上傳到雲端</button>
         <div style="margin-top:8px;font-size:0.8rem;color:#888;line-height:1.4;">
@@ -117,7 +122,14 @@ button{font-family:inherit;cursor:pointer;}
 <!-- PAGE 2 -->
 <div class="page hidden" id="page1">
   <div class="card">
-    <div class="card-hd"><span>&#9997; 數量輸入</span><small style="margin-left:auto;font-weight:normal" id="p2-loc-info"></small></div>
+    <div class="card-hd">
+      <span>&#9997; 數量輸入</span>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <!-- 新增：增加自訂項目按鈕 -->
+        <button class="btn-sm btn-outline" style="font-weight:bold" onclick="addCustomRow()">+ 新增自訂項目</button>
+        <small style="font-weight:normal" id="p2-loc-info"></small>
+      </div>
+    </div>
     <div class="card-bd">
       <div class="tbl-wrap">
         <table>
@@ -171,7 +183,6 @@ button{font-family:inherit;cursor:pointer;}
       <button class="btn btn-outline" onclick="goPage(1)">&#8592; 修改</button>
       <button class="btn btn-warn" onclick="window.print()">&#128438; 列印/PDF</button>
       <button class="btn btn-primary" onclick="exportCSV()">&#128202; 下載 CSV</button>
-      <!-- 單筆上傳按鈕已刪除，移至第一頁 -->
       <button class="btn btn-success" style="flex-basis:100%" onclick="markDone()">&#10003; 儲存並完成</button>
     </div>
     <div style="margin-top:20px;text-align:center;"><button style="background:none;border:none;color:#aaa;text-decoration:underline" onclick="resetAll()">重置本機資料</button></div>
@@ -198,11 +209,13 @@ button{font-family:inherit;cursor:pointer;}
 
 <script>
 // ★★★ 請替換成你最新部署的「網頁應用程式」網址 ★★★
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxT0dCpftXBe0wPbFnIEIgDmnEmF3_MWtgRvuZd8jZZYjeopmkkaC97tI9GRithgU_vzQ/exec";
+const GOOGLE_SCRIPT_URL = "PASTE_YOUR_NEW_WEB_APP_EXEC_URL_HERE";
 
 /* CONFIG & DATA */
 const CONFIG={budget:{1:130000,2:200000},locs:[{id:1,t:"秀林鄉",v:"文蘭村",s:"文蘭村辦公室、銅門收容所",p:1},{id:2,t:"秀林鄉",v:"和平村",s:"和平村辦公室/活動中心",p:1},{id:3,t:"秀林鄉",v:"秀林村",s:"秀林村多功能集會所",p:1},{id:4,t:"秀林鄉",v:"佳民村",s:"佳民文化健康站",p:2},{id:5,t:"吉安鄉",v:"福興村",s:"福興社區活動中心",p:2},{id:6,t:"壽豐鄉",v:"水璉村",s:"水璉社區活動中心",p:2},{id:7,t:"萬榮鄉",v:"馬遠村",s:"馬遠村辦公處/馬遠社區活動中心",p:1},{id:8,t:"萬榮鄉",v:"見晴村",s:"見晴多功能活動中心",p:1},{id:9,t:"萬榮鄉",v:"萬榮村",s:"萬榮村辦公處、摩里沙卡文化健康站",p:2},{id:10,t:"光復鄉",v:"大興村",s:"大興村辦公處",p:1},{id:11,t:"光復鄉",v:"大同村",s:"大同活動中心",p:1},{id:12,t:"光復鄉",v:"東富村",s:"加里洞社區活動中心",p:1},{id:13,t:"光復鄉",v:"大華村",s:"大華村活動中心",p:1},{id:14,t:"光復鄉",v:"大安村",s:"大安社區活動中心",p:1},{id:15,t:"光復鄉",v:"北富村",s:"太巴塱部落之心",p:1},{id:16,t:"光復鄉",v:"大馬村",s:"香草場社區活動中心",p:1},{id:17,t:"光復鄉",v:"大平村",s:"三玄宮、保安寺",p:1},{id:18,t:"光復鄉",v:"大全村",s:"大全村活動中心/拉索埃聚會所",p:2},{id:19,t:"瑞穗鄉",v:"奇美村",s:"奇美村辦公室/活動中心",p:1},{id:20,t:"瑞穗鄉",v:"舞鶴村",s:"掃叭頂社區活動中心",p:2},{id:21,t:"玉里鎮",v:"春日里",s:"春日文化健康站",p:2},{id:22,t:"卓溪鄉",v:"崙山村",s:"崙山社區活動中心",p:1},{id:23,t:"卓溪鄉",v:"古風村",s:"崙天社區活動中心",p:1}],items:{1:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈(含燈頭延伸架)",p:22500},{c:"路燈",n:"300W 太陽能路燈(含燈頭延伸架)",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}],2:[{c:"投射燈",n:"100W 太陽能投射燈",p:13500},{c:"投射燈",n:"200W 太陽能投射燈",p:18500},{c:"投射燈",n:"300W 太陽能投射燈",p:23000},{c:"路燈",n:"100W 太陽能路燈",p:22500},{c:"路燈",n:"300W 太陽能路燈",p:29500},{c:"路燈",n:"4米燈桿",p:12000},{c:"室內照明",n:"2*2 (60x60) 35W 平板燈",p:2500},{c:"室內照明",n:"2*4 (60x120) 35W 平板燈",p:4000},{c:"室內照明",n:"T8 LED 12W 2尺+雙管山型座",p:2200},{c:"室內照明",n:"T8 LED 20W 4尺+雙管山型座",p:3200},{c:"省水設備",n:"壓按式水龍頭 - 立栓",p:2500},{c:"省水設備",n:"壓按式水龍頭 - 壁栓",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓柄)",p:2500},{c:"省水設備",n:"省水馬桶套件-低水箱(壓扭)",p:2500},{c:"省水設備",n:"省水馬桶套件-高水箱(拉繩)",p:3000},{c:"環境",n:"資源回收桶 120L",p:3000},{c:"環境",n:"資源回收桶 240L",p:3500},{c:"家電",n:"300L 雙門冰箱 一級節能",p:25000},{c:"家電",n:"400L 雙門冰箱 一級節能",p:30000},{c:"水塔",n:"1T 雨水回收系統 - 立式",p:35000},{c:"水塔",n:"1T 雨水回收系統 - 臥式",p:35000}]}};
-let state={loc:null,proj:null,qty:{},chk:{},saved:{},cloudFiles:[]};
+
+// ADDED: custom array to store user-added items
+let state={loc:null,proj:null,qty:{},chk:{},custom:[],saved:{},cloudFiles:[]};
 
 window.onload=()=>{
   loadFromLocal();
@@ -214,7 +227,6 @@ window.onload=()=>{
 function fmtMoney(n){return '$'+Number(n).toLocaleString();}
 function toast(m){let t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},3000);}
 
-// ─── 雲端同步功能（加強版錯誤判斷，避免因登入頁面導致 JSON 解析失敗而未提示） ───
 function syncCloud(){
   let st = document.getElementById('cloudStatusText');
   st.textContent = "☁ 正在讀取雲端資料...";
@@ -223,7 +235,6 @@ function syncCloud(){
   fetch(GOOGLE_SCRIPT_URL, { method:'GET', redirect:'follow', cache:'no-store' })
     .then(res => res.text())
     .then(txt => {
-      // 判斷回傳內容是否為 HTML（通常是 Google 登入或權限錯誤頁面）
       if((txt || '').trim().startsWith('<')){
         st.textContent = "⚠ 同步失敗：請檢查 GAS 部署是否設為「所有人可存取」";
         st.style.color = "red";
@@ -256,7 +267,6 @@ function updateCloudStatusUI(){
   });
 }
 
-// ─── 標準功能 ───
 function goPage(n){
   if(n>0&&(!state.loc||!state.proj)){toast('請先選擇地點');return;}
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('hidden',i!==n));
@@ -295,11 +305,13 @@ function selectLoc(l){
     state.proj=s.proj;
     state.qty=JSON.parse(JSON.stringify(s.qty));
     state.chk=JSON.parse(JSON.stringify(s.chk));
+    state.custom=s.custom ? JSON.parse(JSON.stringify(s.custom)) : [];
     toast(`已載入本機資料：${l.v}`);
   }else{
     state.proj=l.p;
     state.qty={};
     state.chk={};
+    state.custom=[];
   }
   updateProjUI();
 }
@@ -307,7 +319,7 @@ function selectLoc(l){
 function selectProject(p){
   if(!state.loc)return;
   if(state.loc.p!==p && !confirm('建議工項不同，確定切換？'))return;
-  state.proj=p;state.qty={};state.chk={};updateProjUI();
+  state.proj=p;state.qty={};state.chk={};state.custom=[];updateProjUI();
 }
 
 function updateProjUI(){
@@ -324,6 +336,8 @@ function renderInputTable(){
   let tb=document.getElementById('inputBody');tb.innerHTML='';
   document.getElementById('p2-loc-info').textContent=`${state.loc.t} ${state.loc.v}`;
   let list=CONFIG.items[state.proj],lastCat='';
+  
+  // Render default items
   list.forEach((it,i)=>{
     if(it.c!==lastCat){let r=tb.insertRow();r.className='cat-row';r.innerHTML=`<td colspan="5">${it.c}</td>`;lastCat=it.c;}
     let r=tb.insertRow(),chk=!!state.chk[i],q=state.qty[i]||0;
@@ -334,6 +348,29 @@ function renderInputTable(){
     <button class="qty-btn" onclick="stepQty(${i},1)" ${!chk?'disabled':''}>+</button></div></td>
     <td class="total-col" id="sub_${i}">${fmtMoney(q*it.p)}</td>`;
   });
+
+  // ─── 渲染自訂項目 ───
+  if(state.custom.length > 0){
+    let cr=tb.insertRow();cr.className='cat-row';cr.innerHTML=`<td colspan="5">自訂項目</td>`;
+    state.custom.forEach((cItem, i) => {
+      let r = tb.insertRow();
+      r.className = 'custom-row';
+      r.innerHTML = `
+        <td style="text-align:center"><button class="btn-sm btn-danger" onclick="removeCustomRow(${i})" title="刪除">✖</button></td>
+        <td><input type="text" class="custom-input" placeholder="輸入項目名稱" value="${cItem.n}" onchange="updateCustomName(${i}, this.value)"></td>
+        <td class="price-col"><input type="number" class="custom-price-input" placeholder="單價" value="${cItem.p}" onchange="updateCustomPrice(${i}, this.value)"></td>
+        <td>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="stepCustomQty(${i},-1)">-</button>
+            <input type="number" class="qty-input" id="cqinp_${i}" value="${cItem.q}" onchange="inputCustomQty(${i},this.value)">
+            <button class="qty-btn" onclick="stepCustomQty(${i},1)">+</button>
+          </div>
+        </td>
+        <td class="total-col" id="csub_${i}">${fmtMoney(cItem.q * cItem.p)}</td>
+      `;
+    });
+  }
+
   updateBudget();
 }
 
@@ -347,7 +384,47 @@ function toggleItem(i){
 function stepQty(i,d){let v=Math.max(0,(state.qty[i]||0)+d);state.qty[i]=v;document.getElementById(`qinp_${i}`).value=v;updateSub(i);}
 function inputQty(i,v){let n=parseInt(v);if(isNaN(n)||n<0)n=0;state.qty[i]=n;document.getElementById(`qinp_${i}`).value=n;updateSub(i);}
 function updateSub(i){document.getElementById(`sub_${i}`).textContent=fmtMoney((state.qty[i]||0)*CONFIG.items[state.proj][i].p);updateBudget();}
-function calcTotal(){return CONFIG.items[state.proj].reduce((a,b,i)=>a+(state.chk[i]?(state.qty[i]||0)*b.p:0),0);}
+
+// ─── 自訂項目功能函數 ───
+function addCustomRow() {
+  state.custom.push({n: '', p: 0, q: 1});
+  renderInputTable();
+}
+function removeCustomRow(i) {
+  state.custom.splice(i, 1);
+  renderInputTable();
+}
+function updateCustomName(i, val) {
+  state.custom[i].n = val;
+}
+function updateCustomPrice(i, val) {
+  let p = parseInt(val);
+  state.custom[i].p = isNaN(p) ? 0 : p;
+  document.getElementById(`csub_${i}`).textContent = fmtMoney(state.custom[i].q * state.custom[i].p);
+  updateBudget();
+}
+function stepCustomQty(i, d) {
+  let v = Math.max(0, state.custom[i].q + d);
+  state.custom[i].q = v;
+  document.getElementById(`cqinp_${i}`).value = v;
+  document.getElementById(`csub_${i}`).textContent = fmtMoney(v * state.custom[i].p);
+  updateBudget();
+}
+function inputCustomQty(i, val) {
+  let n = parseInt(val);
+  if (isNaN(n) || n < 0) n = 0;
+  state.custom[i].q = n;
+  document.getElementById(`cqinp_${i}`).value = n;
+  document.getElementById(`csub_${i}`).textContent = fmtMoney(n * state.custom[i].p);
+  updateBudget();
+}
+
+// ─── 重新計算總計與預算 ───
+function calcTotal(){
+  let regularTotal = CONFIG.items[state.proj].reduce((a,b,i)=>a+(state.chk[i]?(state.qty[i]||0)*b.p:0),0);
+  let customTotal = state.custom.reduce((a,c) => a + (c.q * c.p), 0);
+  return regularTotal + customTotal;
+}
 
 function updateBudget(){
   let t=calcTotal(),lim=CONFIG.budget[state.proj],diff=lim-t,pct=Math.round(t/lim*100);
@@ -365,10 +442,23 @@ function renderResult(){
   document.getElementById('rProj').textContent=state.proj===1?'01 防災':'02 低碳';
   document.getElementById('rDate').textContent=`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
   let tb=document.getElementById('resultBody');tb.innerHTML='';
+  
+  let hasItem = false;
   CONFIG.items[state.proj].forEach((it,i)=>{
-    if(state.chk[i]&&state.qty[i]>0) tb.innerHTML+=`<tr><td>${it.n}</td><td class="price-col">${fmtMoney(it.p)}</td><td style="text-align:center">${state.qty[i]}</td><td class="total-col">${fmtMoney(state.qty[i]*it.p)}</td></tr>`;
+    if(state.chk[i]&&state.qty[i]>0) {
+      tb.innerHTML+=`<tr><td>${it.n}</td><td class="price-col">${fmtMoney(it.p)}</td><td style="text-align:center">${state.qty[i]}</td><td class="total-col">${fmtMoney(state.qty[i]*it.p)}</td></tr>`;
+      hasItem = true;
+    }
   });
-  if(tb.innerHTML==='')tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:15px">無選購項目</td></tr>';
+
+  state.custom.forEach(cItem => {
+    if(cItem.q > 0 && cItem.n.trim() !== '') {
+      tb.innerHTML+=`<tr class="custom-row"><td>${cItem.n} (自訂)</td><td class="price-col">${fmtMoney(cItem.p)}</td><td style="text-align:center">${cItem.q}</td><td class="total-col">${fmtMoney(cItem.q*cItem.p)}</td></tr>`;
+      hasItem = true;
+    }
+  });
+
+  if(!hasItem) tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:15px">無選購項目</td></tr>';
   
   document.getElementById('rTotal').textContent=fmtMoney(t);
   document.getElementById('rLimitInfo').textContent=`上限 ${fmtMoney(lim)}`;
@@ -390,15 +480,15 @@ function renderResult(){
 
 function markDone(){
   if(!state.loc)return;
-  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk};
+  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk,custom:state.custom};
   saveToLocal();
   document.getElementById(`loc_${state.loc.id}`).classList.add('local-done');
   updateProgress();
   toast('已儲存至本機！');
 }
 
-// === 建立 CSV 內容 (資料往下排列) ===
-function buildCSVContent(loc, proj, chk, qty){
+// === 建立 CSV 內容 ===
+function buildCSVContent(loc, proj, chk, qty, custom){
   let rows = [
     ['序號','鄉鎮','村里','現勘場域','盤點項目','項目','數量','價錢','總價']
   ];
@@ -416,6 +506,17 @@ function buildCSVContent(loc, proj, chk, qty){
     }
   });
 
+  if(custom && custom.length > 0) {
+    custom.forEach(cItem => {
+      if(cItem.q > 0 && cItem.n.trim() !== '') {
+        let subtotal = cItem.q * cItem.p;
+        grandTotal += subtotal;
+        rows.push([rowNumber, loc.t, loc.v, loc.s, projName, cItem.n + ' (自訂)', cItem.q, cItem.p, subtotal]);
+        rowNumber++;
+      }
+    });
+  }
+
   rows.push([]);
   rows.push(['','','','','','合計','','',grandTotal]);
 
@@ -423,7 +524,7 @@ function buildCSVContent(loc, proj, chk, qty){
 }
 
 function getCSVContent(){
-  return buildCSVContent(state.loc, state.proj, state.chk, state.qty);
+  return buildCSVContent(state.loc, state.proj, state.chk, state.qty, state.custom);
 }
 
 function exportCSV(){
@@ -435,7 +536,6 @@ function exportCSV(){
   a.click();
 }
 
-// ─── 批次上傳至雲端功能 ───
 function postToDrive(filename, csvContent){
   return fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
@@ -466,7 +566,7 @@ async function uploadAllToDrive(){
 
     document.getElementById('loadingText').textContent = `正在上傳 (${idx+1}/${ids.length})：${loc.t} ${loc.v}`;
 
-    let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {});
+    let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {}, s.custom || []);
     let filename = `${loc.t}_${loc.v}_報價單.csv`;
 
     try {
@@ -480,10 +580,9 @@ async function uploadAllToDrive(){
 
   document.getElementById('loadingOverlay').style.display = 'none';
   toast(`✅ 上傳完成：成功 ${ok} 筆、失敗 ${fail} 筆`);
-  setTimeout(syncCloud, 1000); // 重新更新畫面狀態
+  setTimeout(syncCloud, 1000);
 }
 
-// ─── 本機資料管理 ───
 function saveToLocal(){localStorage.setItem('calc_v2',JSON.stringify(state.saved));}
 function loadFromLocal(){let d=localStorage.getItem('calc_v2');if(d)state.saved=JSON.parse(d);}
 function updateProgress(){let d=Object.keys(state.saved).length,t=CONFIG.locs.length;document.getElementById('progText').textContent=`${d} / ${t}`;document.getElementById('progFill').style.width=(d/t*100)+'%';}
@@ -503,6 +602,7 @@ function showSavedModal(){
     ids.forEach(id=>{
       let l=CONFIG.locs.find(x=>x.id==id),s=state.saved[id],t=0;
       CONFIG.items[s.proj].forEach((it,i)=>{if(s.chk[i])t+=(s.qty[i]||0)*it.p;});
+      if(s.custom) s.custom.forEach(c => { t += (c.q * c.p); });
       tb.innerHTML+=`<tr>
         <td>${l.t} ${l.v}</td>
         <td style="font-weight:bold">${fmtMoney(t)}</td>
@@ -546,6 +646,22 @@ function viewSavedDetail(id){
       </tr>`;
     }
   });
+  
+  if(s.custom) {
+    s.custom.forEach(cItem => {
+      if(cItem.q > 0 && cItem.n.trim() !== '') {
+        hasItem = true;
+        let sub = cItem.q * cItem.p;
+        grandTotal += sub;
+        tbody.innerHTML += `<tr class="custom-row">
+          <td>${cItem.n} (自訂)</td>
+          <td>${fmtMoney(cItem.p)}</td>
+          <td style="text-align:center">${cItem.q}</td>
+          <td style="text-align:right;font-weight:bold">${fmtMoney(sub)}</td>
+        </tr>`;
+      }
+    });
+  }
 
   if(!hasItem) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa">無項目</td></tr>';
   document.getElementById('detailTotal').textContent = `總計：${fmtMoney(grandTotal)}`;
