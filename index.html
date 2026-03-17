@@ -591,7 +591,7 @@ function postToDrive(filename, csvContent){
   });
 }
 
-// === 支援序號跳增與變動檢測的上傳機制 ===
+// === 支援序號跳增與變動檢測的上傳機制 (修復雲端刪檔不同步問題) ===
 async function uploadAllToDrive(){
   let ids = Object.keys(state.saved || {});
   if(ids.length === 0){
@@ -619,8 +619,16 @@ async function uploadAllToDrive(){
     // 產生最新的 CSV 內容
     let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {}, s.custom || []);
 
-    // 【檢測機制】如果跟上次成功上傳的內容一模一樣，就跳過不上傳
-    if (s.lastUploadedCsv === csv) {
+    // 準備基礎檔名用來比對雲端狀態 (鄉鎮_村里)
+    let searchName = `${loc.t}_${loc.v}`;
+    // 檢查雲端上是否"真的"有包含這個村里名字的檔案
+    let existsInCloud = (state.cloudFiles || []).some(f => String(f).includes(searchName));
+
+    // 【雙重檢測機制】
+    // 1. 本機內容沒變動 (s.lastUploadedCsv === csv)
+    // 2. 且 雲端上確實有這個檔案 (existsInCloud === true)
+    // 只有同時滿足這兩個條件，才允許跳過
+    if (s.lastUploadedCsv === csv && existsInCloud) {
       skip++;
       continue;
     }
@@ -652,10 +660,10 @@ async function uploadAllToDrive(){
         fail++; 
       } else {
         ok++;
-        // 記錄這次成功上傳的內容，作為下次變動比對的依據
+        // 記錄這次成功上傳的內容
         s.lastUploadedCsv = csv;
         
-        // 順便把新檔名加進本地暫存清單，以防連續上傳時抓錯序號
+        // 順便把新檔名加進本地雲端檔案清單，確保後續比對與視覺狀態正常
         if (!state.cloudFiles.includes(filename)) {
           state.cloudFiles.push(filename);
         }
