@@ -113,6 +113,9 @@ button{font-family:inherit;cursor:pointer;}
 
       <div style="margin-top:15px;">
         <button class="btn btn-drive" style="width:100%" onclick="uploadAllToDrive()">☁ 將所有資料上傳到雲端</button>
+        <!-- 新增的 Google Drive 連結按鈕，請在此替換網址 -->
+        <button class="btn btn-outline" style="width:100%; margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.open('https://drive.google.com/drive/my-drive', '_blank')">📁 開啟 Google Drive 資料夾</button>
+        
         <div style="margin-top:8px;font-size:0.8rem;color:#888;line-height:1.4;">
           會將「本機暫存」內所有已儲存的村里報價單，逐筆上傳到雲端資料夾。(同名檔案會被覆蓋)
         </div>
@@ -137,7 +140,6 @@ button{font-family:inherit;cursor:pointer;}
     <div class="card-bd">
       <div class="tbl-wrap">
         <table>
-          <!-- 移除勾選欄位 -->
           <thead><tr><th>項目</th><th style="width:90px">單價</th><th style="width:110px">數量</th><th style="width:90px">小計</th></tr></thead>
           <tbody id="inputBody"></tbody>
         </table>
@@ -201,12 +203,19 @@ button{font-family:inherit;cursor:pointer;}
       <h3 id="modalTitle">本機暫存清單</h3>
       <button style="border:none;background:none;font-size:1.5rem" onclick="closeModal()">×</button>
     </div>
-    <div id="savedListView"><div class="tbl-wrap"><table><thead><tr><th>村里</th><th>金額</th><th>操作</th></tr></thead><tbody id="modalListBody"></tbody></table></div></div>
+    <div id="savedListView">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>村里</th><th>金額</th><th>結餘</th><th>操作</th></tr></thead>
+          <tbody id="modalListBody"></tbody>
+        </table>
+      </div>
+    </div>
     <div id="savedDetailView" class="hidden">
       <button class="btn-sm btn-outline" onclick="showSavedModal()">&#8592; 返回清單</button>
       <div style="margin-top:10px;font-weight:bold;font-size:1.1rem;color:var(--primary)" id="detailTitle"></div>
       <div class="tbl-wrap" style="margin-top:10px"><table><thead><tr><th>規格</th><th>單價</th><th>數量</th><th>小計</th></tr></thead><tbody id="detailTableBody"></tbody></table></div>
-      <div style="text-align:right;margin-top:10px;font-weight:bold" id="detailTotal"></div>
+      <div style="text-align:right;margin-top:15px;line-height:1.6;font-weight:bold;" id="detailTotal"></div>
     </div>
   </div>
 </div>
@@ -538,8 +547,15 @@ function buildCSVContent(loc, proj, chk, qty, custom){
     });
   }
 
+  // 新增：計算預算結餘
+  let limit = CONFIG.budget[proj];
+  let diff = limit - grandTotal;
+  let diffLabel = diff >= 0 ? '預算剩餘' : '超出預算';
+
   rows.push([]);
-  rows.push(['','','','','','合計','','',grandTotal]);
+  rows.push(['','','','','','合計','','', grandTotal]);
+  rows.push(['','','','','','預算上限','','', limit]);
+  rows.push(['','','','','', diffLabel,'','', Math.abs(diff)]); // 取絕對值顯示金額
 
   return "\uFEFF" + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
 }
@@ -618,15 +634,22 @@ function showSavedModal(){
   let ids = Object.keys(state.saved);
 
   if(ids.length === 0){
-    tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#aaa">尚無本機資料</td></tr>';
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#aaa">尚無本機資料</td></tr>';
   } else {
     ids.forEach(id=>{
       let l=CONFIG.locs.find(x=>x.id==id),s=state.saved[id],t=0;
       CONFIG.items[s.proj].forEach((it,i)=>{if(s.qty[i]>0)t+=(s.qty[i]||0)*it.p;});
       if(s.custom) s.custom.forEach(c => { t += (c.q * c.p); });
+      
+      // 計算結餘
+      let limit = CONFIG.budget[s.proj];
+      let diff = limit - t;
+      let diffText = diff >= 0 ? `<span style="color:#27ae60;font-weight:bold;">剩餘 ${fmtMoney(diff)}</span>` : `<span style="color:#c0392b;font-weight:bold;">超出 ${fmtMoney(Math.abs(diff))}</span>`;
+
       tb.innerHTML+=`<tr>
         <td>${l.t} ${l.v}</td>
         <td style="font-weight:bold">${fmtMoney(t)}</td>
+        <td>${diffText}</td>
         <td>
           <button class="btn-sm btn-outline" onclick="viewSavedDetail(${id})">詳情</button>
           <button class="btn-sm btn-edit" onclick="editSaved(${id})">✏️ 載入</button>
@@ -637,6 +660,7 @@ function showSavedModal(){
   }
   document.getElementById('savedModal').style.display='flex';
 }
+
 function closeModal(){document.getElementById('savedModal').style.display='none';}
 
 function viewSavedDetail(id){
@@ -685,7 +709,17 @@ function viewSavedDetail(id){
   }
 
   if(!hasItem) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa">無項目</td></tr>';
-  document.getElementById('detailTotal').textContent = `總計：${fmtMoney(grandTotal)}`;
+  
+  // 明細頁面也加入結餘顯示
+  let limit = CONFIG.budget[s.proj];
+  let diff = limit - grandTotal;
+  let diffText = diff >= 0 ? `<span style="color:#27ae60">預算剩餘：${fmtMoney(diff)}</span>` : `<span style="color:#c0392b">超出預算：${fmtMoney(Math.abs(diff))}</span>`;
+
+  document.getElementById('detailTotal').innerHTML = `
+    <div style="font-size:0.9rem; color:#888; margin-bottom:4px;">預算上限：${fmtMoney(limit)}</div>
+    <div style="margin-bottom:4px;">總計金額：${fmtMoney(grandTotal)}</div>
+    <div style="font-size:1.1rem;">${diffText}</div>
+  `;
 }
 
 function editSaved(id){closeModal();selectLoc(CONFIG.locs.find(x=>x.id==id));goPage(0);}
