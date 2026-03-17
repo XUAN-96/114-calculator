@@ -117,7 +117,7 @@ button{font-family:inherit;cursor:pointer;}
         <button class="btn btn-outline" style="width:100%; margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.open('https://drive.google.com/drive/my-drive', '_blank')">📁 開啟 Google Drive 資料夾</button>
         
         <div style="margin-top:8px;font-size:0.8rem;color:#888;line-height:1.4;">
-          會將「本機暫存」內所有已儲存的村里報價單，逐筆上傳到雲端資料夾。(同名檔案會被覆蓋)
+          會自動比對本機與雲端資料，無變動將自動跳過。<br>有變動的檔案會依日期加上序號另存新檔 (例: 0317-1)，不覆蓋舊檔。
         </div>
       </div>
     </div>
@@ -510,7 +510,9 @@ function renderResult(){
 
 function markDone(){
   if(!state.loc)return;
-  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk,custom:state.custom};
+  // 儲存資料時，保留原本的 lastUploadedCsv 狀態，以供後續比對
+  let existingLastUpload = state.saved[state.loc.id] ? state.saved[state.loc.id].lastUploadedCsv : null;
+  state.saved[state.loc.id]={proj:state.proj,qty:state.qty,chk:state.chk,custom:state.custom, lastUploadedCsv: existingLastUpload};
   saveToLocal();
   document.getElementById(`loc_${state.loc.id}`).classList.add('local-done');
   updateProgress();
@@ -584,31 +586,77 @@ function postToDrive(filename, csvContent){
   });
 }
 
+// === 支援序號跳增與變動檢測的上傳機制 ===
 async function uploadAllToDrive(){
   let ids = Object.keys(state.saved || {});
   if(ids.length === 0){
     alert('目前沒有任何「本機暫存」資料可上傳。\n請先將各村里報價單按「儲存並完成」後再上傳。');
     return;
   }
-  if(!confirm(`將上傳 ${ids.length} 筆村里資料到雲端（同名檔案會覆蓋）。\n確定要繼續嗎？`)) return;
+  if(!confirm(`即將同步資料至雲端。\n- 無變動的村里會自動跳過\n- 有變動會依日期加上序號另存新檔 (例: 0317-1)\n確定要繼續嗎？`)) return;
 
   document.getElementById('loadingOverlay').style.display = 'flex';
 
-  let ok = 0, fail = 0;
+  let ok = 0, fail = 0, skip = 0;
+  
+  // 取得今天的日期字串 (例如: 0317)
+  let d = new Date();
+  let mm = String(d.getMonth() + 1).padStart(2, '0');
+  let dd = String(d.getDate()).padStart(2, '0');
+  let dateStr = mm + dd;
+
   for(let idx=0; idx<ids.length; idx++){
     let id = ids[idx];
     let loc = CONFIG.locs.find(x => String(x.id) === String(id));
     let s = state.saved[id];
     if(!loc || !s){ fail++; continue; }
 
+    // 產生最新的 CSV 內容
+    let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {}, s.custom || []);
+
+    // 【檢測機制】如果跟上次成功上傳的內容一模一樣，就跳過不上傳
+    if (s.lastUploadedCsv === csv) {
+      skip++;
+      continue;
+    }
+
     document.getElementById('loadingText').textContent = `正在上傳 (${idx+1}/${ids.length})：${loc.t} ${loc.v}`;
 
-    let csv = buildCSVContent(loc, s.proj, s.chk || {}, s.qty || {}, s.custom || []);
-    let filename = `${loc.t}_${loc.v}_報價單.csv`;
+    // 準備檔名前綴: 鄉鎮_村里_報價單_MMDD
+    let basePrefix = `${loc.t}_${loc.v}_報價單_${dateStr}`;
+    
+    // 【序號計算機制】掃描雲端檔案庫，找出今天這個村里已經排到幾號
+    let maxSeq = 0;
+    // 使用正則表達式尋找結尾是 -數字.csv 的檔案
+    let regex = new RegExp(`^${basePrefix}-(\\d+)\\.csv$`);
+    (state.cloudFiles || []).forEach(fname => {
+      let match = fname.match(regex);
+      if(match) {
+        let seq = parseInt(match[1]);
+        if(seq > maxSeq) maxSeq = seq;
+      }
+    });
+    
+    // 新檔名加上下一個序號
+    let nextSeq = maxSeq + 1;
+    let filename = `${basePrefix}-${nextSeq}.csv`;
 
     try {
       let resp = await postToDrive(filename, csv);
-      if(resp && resp.status === 'error') fail++; else ok++;
+      if(resp && resp.status === 'error') {
+        fail++; 
+      } else {
+        ok++;
+        // 記錄這次成功上傳的內容，作為下次變動比對的依據
+        s.lastUploadedCsv = csv;
+        
+        // 順便把新檔名加進本地暫存清單，以防連續上傳時抓錯序號
+        if (!state.cloudFiles.includes(filename)) {
+          state.cloudFiles.push(filename);
+        }
+        // 儲存更新後的狀態到 localStorage
+        saveToLocal();
+      }
     } catch(e){
       console.error(e);
       fail++;
@@ -616,7 +664,9 @@ async function uploadAllToDrive(){
   }
 
   document.getElementById('loadingOverlay').style.display = 'none';
-  toast(`✅ 上傳完成：成功 ${ok} 筆、失敗 ${fail} 筆`);
+  toast(`✅ 處理完成：成功上傳 ${ok} 筆、無變動跳過 ${skip} 筆、失敗 ${fail} 筆`);
+  
+  // 重新從 GAS 抓取最新的雲端檔案列表
   setTimeout(syncCloud, 1000);
 }
 
