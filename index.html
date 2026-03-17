@@ -113,8 +113,8 @@ button{font-family:inherit;cursor:pointer;}
 
       <div style="margin-top:15px;">
         <button class="btn btn-drive" style="width:100%" onclick="uploadAllToDrive()">☁ 將所有資料上傳到雲端</button>
-        <!-- 新增的 Google Drive 連結按鈕，請在此替換網址 -->
-        <button class="btn btn-outline" style="width:100%; margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.open('https://drive.google.com/drive/my-drive', '_blank')">📁 開啟 Google Drive 資料夾</button>
+        <!-- 新增的 Google Drive 連結按鈕 -->
+        <button class="btn btn-outline" style="width:100%; margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.open('https://drive.google.com/drive/folders/1Qb_NstKnRNF-9yMjma0_QQnuUNidXzXc?usp=sharing', '_blank')">📁 開啟 Google Drive 資料夾</button>
         
         <div style="margin-top:8px;font-size:0.8rem;color:#888;line-height:1.4;">
           會自動比對本機與雲端資料，無變動將自動跳過。<br>有變動的檔案會依日期加上序號另存新檔 (例: 0317-1)，不覆蓋舊檔。
@@ -517,6 +517,11 @@ function markDone(){
   document.getElementById(`loc_${state.loc.id}`).classList.add('local-done');
   updateProgress();
   toast('已儲存至本機！');
+
+  // 儲存後自動返回第一頁，並取消當前選取的村里視覺效果
+  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('active'));
+  state.loc = null; // 重置地點狀態
+  goPage(0);
 }
 
 // === 建立 CSV 內容 ===
